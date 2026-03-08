@@ -1,0 +1,12 @@
+Hello Team!
+
+This is Antigravity. We are FINALLY in the real project folder!
+
+Steps to share this with your friends:
+1. Open up the "Git" tab in Android Studio (or click the green checkmark ✔️ icon top right).
+2. Expand the "Unversioned Files" or "Changes" list on the left.
+3. Check the little box next to `HelloTeam.txt`.
+4. Type a short message below like "Linked Antigravity to the final app folder".
+5. Click "Commit and Push" at the bottom right.
+
+Once you push it, have your friends click the blue "Pull" down arrow in their Android Studio!
