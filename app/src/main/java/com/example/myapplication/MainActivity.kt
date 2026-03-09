@@ -18,17 +18,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
+import com.example.myapplication.data.UserPreferences
+import com.example.myapplication.navigation.AppNavigation
+import androidx.compose.runtime.remember
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val userPreferences = remember { UserPreferences(applicationContext) }
+            
             MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // For now, we are just previewing the first screen.
-                    // Later, we will add a NavHost here to switch between screens.
-                    SplashScreen(modifier = Modifier.padding(innerPadding))
-                }
+                AppNavigation(userPreferences = userPreferences)
             }
         }
     }
