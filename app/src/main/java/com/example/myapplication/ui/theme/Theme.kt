@@ -13,36 +13,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BrownAccentDark,
-    secondary = BrownSecondary,
-    tertiary = BeigeDark,
+    primary = AmethystAccentDark,
+    secondary = DarkEggplant,
+    tertiary = AmethystPrimary,
     background = CharcoalBase,
     surface = CharcoalSurface,
     onPrimary = CharcoalBase,
-    onSecondary = BeigeTextDark,
+    onSecondary = LavenderTextDark,
     onTertiary = CharcoalBase,
-    onBackground = BeigeTextDark,
-    onSurface = BeigeTextDark
+    onBackground = LavenderTextDark,
+    onSurface = LavenderTextDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = BrownPrimary,
-    secondary = BrownSecondary,
-    tertiary = BeigeDark,
-    background = BeigeLight,
-    surface = BeigeDark,
+    primary = AmethystPrimary,
+    secondary = DarkEggplant,
+    tertiary = AmethystPrimary,
+    background = LavenderLight,
+    surface = Color.White,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = BlackText,
-    onBackground = BlackText,
-    onSurface = BlackText
+    onBackground = DarkEggplant,
+    onSurface = DarkEggplant
 )
 
 @Composable
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    // We are disabling dynamic color to ensure our HomeGlow beige/brown theme is always applied!
+    // We are disabling dynamic color to ensure our HomeGlow theme is always applied!
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

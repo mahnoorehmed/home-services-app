@@ -39,7 +39,7 @@ fun OtpScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF6F4E37), // Coffee Brown top
+                        Color(0xFF967BB6), // Amethyst top
                         MaterialTheme.colorScheme.background // Fading into background perfectly
                     )
                 )
@@ -106,7 +106,7 @@ fun OtpScreen(
                             text = "Enter the code",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1E1E)
+                            color = Color(0xFF231D2B)
                         )
                         Text(
                             text = "We sent a 4-digit code to $phoneNumber",
@@ -130,9 +130,9 @@ fun OtpScreen(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
                             unfocusedContainerColor = Color(0xFFF5F5F5),
                             focusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF6F4E37),
-                            unfocusedTextColor = Color(0xFF1E1E1E),
-                            focusedTextColor = Color(0xFF1E1E1E)
+                            focusedBorderColor = Color(0xFF967BB6),
+                            unfocusedTextColor = Color(0xFF231D2B),
+                            focusedTextColor = Color(0xFF231D2B)
                         ),
                         singleLine = true,
                         textStyle = LocalTextStyle.current.copy(letterSpacing = 24.sp, textAlign = TextAlign.Center)
@@ -159,7 +159,7 @@ fun OtpScreen(
                                 text = "Resend OTP",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isResendEnabled) Color(0xFF6F4E37) else Color(0xFF757575).copy(alpha=0.5f)
+                                color = if (isResendEnabled) Color(0xFF967BB6) else Color(0xFF757575).copy(alpha=0.5f)
                             )
                         }
                     }
@@ -175,9 +175,9 @@ fun OtpScreen(
                         shape = RoundedCornerShape(50),
                         enabled = otp.length == 4,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A3B32), // Strong Brown
+                            containerColor = Color(0xFF967BB6), // Strong Amethyst
                             contentColor = Color.White,
-                            disabledContainerColor = Color(0xFFBCAAA4),
+                            disabledContainerColor = Color(0xFFDFDAE6),
                             disabledContentColor = Color.White
                         )
                     ) {

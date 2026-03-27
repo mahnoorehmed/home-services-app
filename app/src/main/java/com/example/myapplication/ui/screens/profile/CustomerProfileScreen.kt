@@ -2,20 +2,16 @@ package com.example.myapplication.ui.screens.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,14 +26,18 @@ fun CustomerProfileScreen(
 ) {
     val scrollState = rememberScrollState()
 
+    // New theme colors
+    val amethyst = Color(0xFF967BB6)
+    val lavender = Color(0xFFDFDAE6)
+    val eggplant = Color(0xFF231D2B)
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            // Using the requested solid skin color
-            .background(Color(0xFFE0C8AE))
+            .background(lavender) // Lavender background
             .verticalScroll(scrollState)
     ) {
-        // TOP HEADER BLOCK (Transparent, relying on parent background)
+        // TOP HEADER BLOCK
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -48,7 +48,7 @@ fun CustomerProfileScreen(
                     text = "Profile",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A3B32) // Strong Brown text for readability on skin background
+                    color = eggplant
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -65,12 +65,11 @@ fun CustomerProfileScreen(
                             .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Neutral beige/brown avatar placeholder
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFE8D5C4)) // Lighter beige
+                                .background(amethyst.copy(alpha = 0.3f)) // Soft amethyst placeholder
                         )
                     }
                     
@@ -82,12 +81,12 @@ fun CustomerProfileScreen(
                             text = "Mahnoor Ahmed",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A3B32) // Strong Brown
+                            color = eggplant
                         )
                         Text(
                             text = "+92 3XX XXXXXXX",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF4A3B32).copy(alpha = 0.8f) // Faded Strong Brown
+                            color = eggplant.copy(alpha = 0.7f)
                         )
                     }
                     
@@ -96,7 +95,7 @@ fun CustomerProfileScreen(
                         onClick = { /* TODO: Edit Profile Action */ },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A3B32), // Solid Brown
+                            containerColor = amethyst,
                             contentColor = Color.White
                         ),
                         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
@@ -119,15 +118,15 @@ fun CustomerProfileScreen(
                 text = "Saved Addresses",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A3B32) // Strong Brown
+                color = eggplant
             )
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Address Card (Uncolored/Transparent with Brown Border and Text)
+            // Address Card (Uncolored/Transparent with Amethyst Border)
             OutlinedCard(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-                border = BorderStroke(1.dp, Color(0xFF6F4E37)), // Brown border
+                border = BorderStroke(1.dp, amethyst),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -142,28 +141,30 @@ fun CustomerProfileScreen(
                             text = "Home",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4A3B32) // Brown text
+                            color = eggplant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Street 12, Block B • Lahore",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF6F4E37) // lighter brown text
+                            color = eggplant.copy(alpha = 0.7f)
                         )
                     }
                     
-                    // Edit Pill (Light color)
-                    Surface(
+                    // Edit Pill — using TextButton so clicks work reliably
+                    TextButton(
+                        onClick = onManageAddressesClicked,
                         shape = RoundedCornerShape(50),
-                        color = Color(0xFF6F4E37).copy(alpha = 0.1f), // Faint brown
-                        modifier = Modifier.clickable { onManageAddressesClicked() }
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = amethyst.copy(alpha = 0.1f),
+                            contentColor = amethyst
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
                             text = "Edit",
-                            color = Color(0xFF6F4E37), // Brown text
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -171,12 +172,12 @@ fun CustomerProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Add New Address Button (Colored Solid)
+            // Add New Address Button
             Button(
                 onClick = onManageAddressesClicked,
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4A3B32), // Solid Brown
+                    containerColor = amethyst,
                     contentColor = Color.White
                 ),
                 modifier = Modifier
@@ -197,16 +198,16 @@ fun CustomerProfileScreen(
                 text = "Settings",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A3B32) // Strong Brown
+                color = eggplant
             )
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Notifications Button (Colored Solid)
+            // Notifications Button
             Button(
                 onClick = { /* TODO */ },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4A3B32), // Solid Brown
+                    containerColor = amethyst,
                     contentColor = Color.White
                 ),
                 modifier = Modifier
@@ -223,12 +224,12 @@ fun CustomerProfileScreen(
                 }
             }
             
-            // Help Support Button (Colored Solid)
+            // Help Support Button
             Button(
                 onClick = { /* TODO */ },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4A3B32), // Solid Brown
+                    containerColor = amethyst,
                     contentColor = Color.White
                 ),
                 modifier = Modifier
@@ -245,12 +246,12 @@ fun CustomerProfileScreen(
                 }
             }
             
-            // Logout Button (Colored Solid)
+            // Logout Button
             Button(
                 onClick = onLogoutClicked,
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4A3B32), // Solid Brown
+                    containerColor = eggplant,
                     contentColor = Color.White
                 ),
                 modifier = Modifier

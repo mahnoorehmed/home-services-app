@@ -113,18 +113,20 @@ fun AddressCard(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            // Edit Pill (matching Profile screen format)
-            Surface(
+            // Edit Pill — using TextButton so clicks work reliably
+            TextButton(
+                onClick = onEdit,
                 shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                modifier = Modifier.clickable { onEdit() }
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = "Edit",
-                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    fontSize = 12.sp
                 )
             }
         }

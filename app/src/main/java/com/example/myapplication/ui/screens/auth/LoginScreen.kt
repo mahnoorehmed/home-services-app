@@ -33,7 +33,7 @@ fun LoginScreen(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF6F4E37), // Coffee Brown top
+                        Color(0xFF967BB6), // Amethyst top
                         MaterialTheme.colorScheme.background // Fading into background perfectly
                     )
                 )
@@ -83,7 +83,7 @@ fun LoginScreen(
                             text = "Welcome",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1E1E) // Dark text for white background
+                            color = Color(0xFF231D2B) // Eggplant text
                         )
                         Text(
                             text = "Enter your phone number to get an OTP",
@@ -98,7 +98,7 @@ fun LoginScreen(
                             text = "Phone number",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1E1E)
+                            color = Color(0xFF231D2B)
                         )
                     }
                     
@@ -116,9 +116,9 @@ fun LoginScreen(
                             unfocusedBorderColor = Color(0xFFE0E0E0),
                             unfocusedContainerColor = Color(0xFFF5F5F5),
                             focusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF6F4E37),
-                            unfocusedTextColor = Color(0xFF1E1E1E),
-                            focusedTextColor = Color(0xFF1E1E1E)
+                            focusedBorderColor = Color(0xFF967BB6),
+                            unfocusedTextColor = Color(0xFF231D2B),
+                            focusedTextColor = Color(0xFF231D2B)
                         ),
                         singleLine = true
                     )
@@ -134,9 +134,9 @@ fun LoginScreen(
                         shape = RoundedCornerShape(50),
                         enabled = phoneNumber.length >= 10,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A3B32), // Strong Brown
+                            containerColor = Color(0xFF967BB6), // Strong Amethyst
                             contentColor = Color.White,
-                            disabledContainerColor = Color(0xFFBCAAA4),
+                            disabledContainerColor = Color(0xFFDFDAE6),
                             disabledContentColor = Color.White
                         )
                     ) {
