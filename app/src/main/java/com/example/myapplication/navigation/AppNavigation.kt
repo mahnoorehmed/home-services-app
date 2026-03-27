@@ -14,6 +14,8 @@ import com.example.myapplication.ui.screens.auth.LoginScreen
 import com.example.myapplication.ui.screens.auth.OtpScreen
 import com.example.myapplication.ui.screens.auth.RoleSelectionScreen
 import com.example.myapplication.ui.screens.home.ProfileScreen
+import com.example.myapplication.ui.screens.profile.CustomerProfileScreen
+import com.example.myapplication.ui.screens.profile.AddressManagementScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -84,6 +86,7 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 
                 OtpScreen(
                     phoneNumber = phone,
+                    onBackClicked = { navController.popBackStack() },
                     onVerifyClicked = { _ ->
                         // Fake successful login: Save to DataStore!
                         scope.launch {
@@ -98,10 +101,14 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 )
             }
             
-            // 5. Home / Profile (Placeholder)
+
+            // 5. Profile
             composable("home") {
-                ProfileScreen(
-                    role = userRole,
+                CustomerProfileScreen(
+                    onBackClicked = { /* Handle back if needed, or disable since it's root */ },
+                    onManageAddressesClicked = {
+                        navController.navigate("manage_addresses")
+                    },
                     onLogoutClicked = {
                         scope.launch {
                             userPreferences.clearSession()
@@ -109,6 +116,15 @@ fun AppNavigation(userPreferences: UserPreferences) {
                         navController.navigate("role_selection") {
                             popUpTo(0) // Clear backstack!
                         }
+                    }
+                )
+            }
+            
+            // 6. Manage Addresses
+            composable("manage_addresses") {
+                AddressManagementScreen(
+                    onBackClicked = {
+                        navController.popBackStack()
                     }
                 )
             }

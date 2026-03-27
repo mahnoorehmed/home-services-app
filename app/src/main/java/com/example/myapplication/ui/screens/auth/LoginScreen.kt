@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.screens.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -8,10 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -23,50 +29,132 @@ fun LoginScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            // Using a rich Coffee Brown gradient based on user request
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF6F4E37), // Coffee Brown top
+                        MaterialTheme.colorScheme.background // Fading into background perfectly
+                    )
+                )
+            )
     ) {
         Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            
+            // Top App Branding
+            Spacer(modifier = Modifier.height(80.dp))
             Text(
-                text = "Log In",
-                style = MaterialTheme.typography.headlineLarge,
+                text = "HomeGlow",
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = Color.White // White contrast against Coffee gradient
             )
-            
             Text(
-                text = "As a ${if(role == "CUSTOMER") "Customer" else "Service Provider"}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
-            )
-
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Mobile Number") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                shape = RoundedCornerShape(12.dp)
+                text = "Sign in to continue",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha=0.8f),
+                modifier = Modifier.padding(top = 8.dp)
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
             
-            Button(
-                onClick = { onContinueClicked(phoneNumber) },
+            // CRISP WHITE Rounded Box containing the Form
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = phoneNumber.length >= 10
+                    .padding(horizontal = 24.dp)
+                    .weight(1f, fill = false),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Text("Continue", style = MaterialTheme.typography.titleMedium)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Header inside card
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = "Welcome",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E1E1E) // Dark text for white background
+                        )
+                        Text(
+                            text = "Enter your phone number to get an OTP",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF757575), // Gray text
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        Text(
+                            text = "Phone number",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E1E1E)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Text Field
+                    OutlinedTextField(
+                        value = phoneNumber,
+                        onValueChange = { phoneNumber = it },
+                        placeholder = { Text("+92 3XX XXXXXXX", color = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color(0xFFE0E0E0),
+                            unfocusedContainerColor = Color(0xFFF5F5F5),
+                            focusedContainerColor = Color.White,
+                            focusedBorderColor = Color(0xFF6F4E37),
+                            unfocusedTextColor = Color(0xFF1E1E1E),
+                            focusedTextColor = Color(0xFF1E1E1E)
+                        ),
+                        singleLine = true
+                    )
+                    
+                    Spacer(modifier = Modifier.height(48.dp))
+                    
+                    // Button
+                    Button(
+                        onClick = { onContinueClicked(phoneNumber) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(50),
+                        enabled = phoneNumber.length >= 10,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4A3B32), // Strong Brown
+                            contentColor = Color.White,
+                            disabledContainerColor = Color(0xFFBCAAA4),
+                            disabledContentColor = Color.White
+                        )
+                    ) {
+                        Text("Send OTP", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
+                    
+                    Text(
+                        text = "By continuing, you agree to Terms Privacy",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF757575),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
+            
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }
