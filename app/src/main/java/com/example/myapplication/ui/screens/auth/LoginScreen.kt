@@ -16,48 +16,63 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import com.example.myapplication.viewmodel.AuthViewModel
+import com.example.myapplication.viewmodel.AuthState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    role: String,
-    onContinueClicked: (String) -> Unit
+    authViewModel: AuthViewModel,
+    onContinueClicked: (String) -> Unit,
+    onDevNavigate: (String) -> Unit = {}
 ) {
     var phoneNumber by remember { mutableStateOf("") }
+    var showDevMenu by remember { mutableStateOf(false) }
+    val context = LocalContext.current as Activity
+    val authState by authViewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.CodeSent) {
+            authViewModel.resetState()
+            onContinueClicked(phoneNumber)
+        }
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            // Using a rich Coffee Brown gradient based on user request
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF967BB6), // Amethyst top
-                        MaterialTheme.colorScheme.background // Fading into background perfectly
+                        Color(0xFFEFE6FF), // Soft pastel purple top
+                        Color(0xFFD3E3FD)  // Soft pastel blue bottom
                     )
                 )
             )
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize()
         ) {
             
             // Top App Branding
-            Spacer(modifier = Modifier.height(80.dp))
-            Text(
-                text = "HomeGlow",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White // White contrast against Coffee gradient
-            )
-            Text(
-                text = "Sign in to continue",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha=0.8f),
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            Spacer(modifier = Modifier.height(72.dp))
+            Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                Text(
+                    text = "HomeGlow",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1E1E1E) // Dark text
+                )
+                Text(
+                    text = "Sign in to continue",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF757575),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
             
             Spacer(modifier = Modifier.height(48.dp))
             
@@ -126,22 +141,40 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(48.dp))
                     
                     // Button
+                    val isLoading = authState is AuthState.Loading
                     Button(
-                        onClick = { onContinueClicked(phoneNumber) },
+                        onClick = { authViewModel.sendOtp(phoneNumber, context) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(50),
-                        enabled = phoneNumber.length >= 10,
+                        enabled = phoneNumber.length >= 10 && !isLoading,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF967BB6), // Strong Amethyst
+                            containerColor = Color(0xFFC4B5FD), // Soft pastel purple button
                             contentColor = Color.White,
-                            disabledContainerColor = Color(0xFFDFDAE6),
+                            disabledContainerColor = Color(0xFFE0E0E0),
                             disabledContentColor = Color.White
                         )
                     ) {
-                        Text("Send OTP", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text("Send OTP", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
                     }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = "Click here to Become a Provider",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF757575),
+                        modifier = Modifier.clickable {
+                            // User clicked to become provider outside of normal registration. 
+                            // Depending on requirements, we can navigate directly. For now, matching UI.
+                        }
+                    )
                     
                     Spacer(modifier = Modifier.weight(1f))
                     
@@ -155,6 +188,38 @@ fun LoginScreen(
             }
             
             Spacer(modifier = Modifier.height(48.dp))
+        }
+
+        // Developer Debug Menu Button
+        TextButton(
+            onClick = { showDevMenu = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 32.dp),
+            colors = ButtonDefaults.textButtonColors(containerColor = Color.White.copy(alpha = 0.7f))
+        ) {
+            Text("🔧 Dev", color = Color(0xFF1E1E1E), fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelMedium)
+        }
+
+        // Developer Debug Menu Dialog
+        if (showDevMenu) {
+            AlertDialog(
+                onDismissRequest = { showDevMenu = false },
+                title = { Text("Developer Debug Menu") },
+                text = {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = { showDevMenu = false; onDevNavigate("login") }, modifier = Modifier.fillMaxWidth()) { Text("Phone Auth Screen") }
+                        Button(onClick = { showDevMenu = false; onDevNavigate("otp/1234567890") }, modifier = Modifier.fillMaxWidth()) { Text("OTP Screen") }
+                        Button(onClick = { showDevMenu = false; onDevNavigate("role_selection") }, modifier = Modifier.fillMaxWidth()) { Text("Role Selection") }
+                        Button(onClick = { showDevMenu = false; onDevNavigate("provider_registration") }, modifier = Modifier.fillMaxWidth()) { Text("Provider Registration") }
+                        Button(onClick = { showDevMenu = false; onDevNavigate("pending_approval") }, modifier = Modifier.fillMaxWidth()) { Text("Pending Approval") }
+                        Button(onClick = { showDevMenu = false; onDevNavigate("provider_dashboard") }, modifier = Modifier.fillMaxWidth()) { Text("Provider Dashboard / Earnings & Toggle") }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDevMenu = false }) { Text("Close") }
+                }
+            )
         }
     }
 }

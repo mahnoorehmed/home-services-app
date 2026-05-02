@@ -18,29 +18,41 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.viewmodel.AuthViewModel
+import com.example.myapplication.viewmodel.AuthState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtpScreen(
     modifier: Modifier = Modifier,
     phoneNumber: String,
+    authViewModel: AuthViewModel,
     onBackClicked: () -> Unit,
-    onVerifyClicked: (String) -> Unit
+    onVerifyClicked: (String) -> Unit,
+    onRoleDetermined: (String?, String?) -> Unit
 ) {
     var otp by remember { mutableStateOf("") }
     // In actual Firebase auth, you will use PhoneAuthProvider.ForceResendingToken.
     // For now we simulate the state.
     var isResendEnabled by remember { mutableStateOf(true) }
+    val authState by authViewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.RoleDetermined) {
+            val determined = authState as AuthState.RoleDetermined
+            authViewModel.resetState()
+            onRoleDetermined(determined.role, determined.status)
+        }
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            // Using a rich Coffee Brown gradient
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF967BB6), // Amethyst top
-                        MaterialTheme.colorScheme.background // Fading into background perfectly
+                        Color(0xFFEFE6FF), // Soft pastel purple top
+                        Color(0xFFD3E3FD)  // Soft pastel blue bottom
                     )
                 )
             )
@@ -58,15 +70,16 @@ fun OtpScreen(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.2f), // Semi-transparent white to contrast against Coffee
+                    color = Color.White,
                     modifier = Modifier.size(48.dp),
-                    onClick = onBackClicked
+                    onClick = onBackClicked,
+                    shadowElevation = 2.dp
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
                         contentDescription = "Back",
                         modifier = Modifier.padding(12.dp),
-                        tint = Color.White // White Back icon
+                        tint = Color(0xFF231D2B)
                     )
                 }
                 
@@ -74,7 +87,7 @@ fun OtpScreen(
                     text = "Verify OTP",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White, // White text against Coffee
+                    color = Color(0xFF231D2B), // Dark text instead of white
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
@@ -109,7 +122,7 @@ fun OtpScreen(
                             color = Color(0xFF231D2B)
                         )
                         Text(
-                            text = "We sent a 4-digit code to $phoneNumber",
+                            text = "We sent a 6-digit code to $phoneNumber",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color(0xFF757575),
                             modifier = Modifier.padding(top = 8.dp)
@@ -118,11 +131,11 @@ fun OtpScreen(
                     
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Simulated 4-digit OTP Input using a single outlined text field for simplicity in this demo
+                    // Simulated 6-digit OTP Input using a single outlined text field for simplicity in this demo
                     OutlinedTextField(
                         value = otp,
-                        onValueChange = { if(it.length <= 4) otp = it },
-                        placeholder = { Text("----", letterSpacing = 8.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), color = Color.Gray) },
+                        onValueChange = { if(it.length <= 6) otp = it },
+                        placeholder = { Text("------", letterSpacing = 8.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         shape = RoundedCornerShape(16.dp),
@@ -167,21 +180,26 @@ fun OtpScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     // Button
+                    val isLoading = authState is AuthState.Loading
                     Button(
-                        onClick = { onVerifyClicked(otp) },
+                        onClick = { authViewModel.verifyOtp(otp) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(50),
-                        enabled = otp.length == 4,
+                        enabled = otp.length == 6 && !isLoading,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF967BB6), // Strong Amethyst
+                            containerColor = Color(0xFFC4B5FD), // Soft pastel purple button
                             contentColor = Color.White,
-                            disabledContainerColor = Color(0xFFDFDAE6),
+                            disabledContainerColor = Color(0xFFE0E0E0),
                             disabledContentColor = Color.White
                         )
                     ) {
-                        Text("Verify Continue", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text("Verify Continue", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
                     }
                     
                     Spacer(modifier = Modifier.weight(1f))
