@@ -1,6 +1,7 @@
 package com.example.myapplication.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -33,51 +34,48 @@ fun AppNavigation(userPreferences: UserPreferences) {
     val isLoggedIn by userPreferences.isLoggedInFlow.collectAsState(initial = null)
     val userRole by userPreferences.userRoleFlow.collectAsState(initial = null)
 
-    Scaffold { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "splash",
-            modifier = Modifier.padding(innerPadding)
-        ) {
+    NavHost(
+        navController = navController,
+        startDestination = "splash",
+        modifier = Modifier.fillMaxSize()
+    ) {
             
             // 1. Splash Screen Configuration
             composable("splash") {
                 SplashScreen()
                 
-                // Once we know if we are logged in or not, transition
-                LaunchedEffect(isLoggedIn) {
-                    if (isLoggedIn != null) {
-                        delay(1500) // Show logo for 1.5 seconds minimum
-                        
-                        if (isLoggedIn == true) {
-                            if (userRole == "provider") {
-                                // Simple check, ideally should check status too, but we can do that in Splash or a router screen
-                                navController.navigate("provider_dashboard") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-                            } else {
-                                navController.navigate("home") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
-                            }
-                        } else {
-                            navController.navigate("login") {
+                LaunchedEffect(Unit) {
+                    delay(1500) // Show logo for 1.5 seconds minimum
+                    
+                    val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                    
+                    if (currentUser != null) {
+                        // User is logged into Firebase
+                        if (userRole == "provider") {
+                            navController.navigate("provider_dashboard") {
                                 popUpTo("splash") { inclusive = true }
                             }
+                        } else {
+                            navController.navigate("home") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        }
+                    } else {
+                        // Not logged in
+                        navController.navigate("role_selection") {
+                            popUpTo("splash") { inclusive = true }
                         }
                     }
                 }
             }
             
-            // 2. Role Selection (Shown after OTP if user is new)
+            // 2. Role Selection (First screen for new users)
             composable("role_selection") {
                 RoleSelectionScreen(
                     onRoleSelected = { selectedRole ->
-                        if (selectedRole == "PROVIDER") {
-                            navController.navigate("provider_registration")
-                        } else {
-                            navController.navigate("home")
-                        }
+                        // Pass the selected role to the login screen
+                        val roleString = if (selectedRole == "PROVIDER") "provider" else "customer"
+                        navController.navigate("login/$roleString")
                     },
                     onDevNavigate = { route ->
                         navController.navigate(route) {
@@ -87,24 +85,13 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 )
             }
             
-            // 3. Provider Registration
-            composable("provider_registration") {
-                ProviderRegistrationScreen(
-                    authViewModel = authViewModel,
-                    onRegistrationSuccess = {
-                        navController.navigate("pending_approval") {
-                            popUpTo("role_selection") { inclusive = true }
-                        }
-                    }
-                )
-            }
-            
-            // 4. Login
-            composable("login") {
+            // 3. Login
+            composable("login/{role}") { backStackEntry ->
+                val role = backStackEntry.arguments?.getString("role") ?: "customer"
                 LoginScreen(
                     authViewModel = authViewModel,
                     onContinueClicked = { phoneNumber ->
-                        navController.navigate("otp/$phoneNumber")
+                        navController.navigate("otp/$phoneNumber/$role")
                     },
                     onDevNavigate = { route ->
                         navController.navigate(route) {
@@ -114,34 +101,52 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 )
             }
             
-            // 5. OTP Verification
-            composable("otp/{phone}") { backStackEntry ->
+            // 4. OTP Verification
+            composable("otp/{phone}/{role}") { backStackEntry ->
                 val phone = backStackEntry.arguments?.getString("phone") ?: ""
+                val role = backStackEntry.arguments?.getString("role") ?: "customer"
                 
                 OtpScreen(
                     phoneNumber = phone,
+                    selectedRole = role,
                     authViewModel = authViewModel,
                     onBackClicked = { navController.popBackStack() },
                     onVerifyClicked = { otp ->
                         // The actual verification happens inside OtpScreen via AuthViewModel
                     },
-                    onRoleDetermined = { role, status ->
+                    onRoleDetermined = { firebaseRole, status ->
                         scope.launch {
-                            if (role != null) {
-                                userPreferences.saveLoginState(isLoggedIn = true, role = role)
-                                if (role == "provider") {
+                            // If they selected Customer, we log them in as a Customer for this session
+                            // regardless of their Firebase role (dual roles allowed)
+                            if (role == "customer") {
+                                userPreferences.saveLoginState(isLoggedIn = true, role = "customer")
+                                navController.navigate("home") { popUpTo(0) }
+                            } else {
+                                // They selected Provider
+                                if (firebaseRole == "provider") {
+                                    userPreferences.saveLoginState(isLoggedIn = true, role = "provider")
                                     if (status == "pending") {
                                         navController.navigate("pending_approval") { popUpTo(0) }
                                     } else {
                                         navController.navigate("provider_dashboard") { popUpTo(0) }
                                     }
                                 } else {
-                                    navController.navigate("home") { popUpTo(0) }
+                                    // New provider, needs registration
+                                    navController.navigate("provider_registration") { popUpTo(0) }
                                 }
-                            } else {
-                                // New User
-                                navController.navigate("role_selection") { popUpTo(0) }
                             }
+                        }
+                    }
+                )
+            }
+            
+            // 5. Provider Registration
+            composable("provider_registration") {
+                ProviderRegistrationScreen(
+                    authViewModel = authViewModel,
+                    onRegistrationSuccess = {
+                        navController.navigate("pending_approval") {
+                            popUpTo("role_selection") { inclusive = true }
                         }
                     }
                 )
@@ -178,9 +183,37 @@ fun AppNavigation(userPreferences: UserPreferences) {
                 )
             }
             
-            // 8. Profile
+            // 8. Customer Home (Main Wrapper with Bottom Nav)
             composable("home") {
-                androidx.compose.material3.Text("Customer Profile Placeholder")
+                com.example.myapplication.ui.screens.home.CustomerMainScreen(
+                    onCategoryClicked = { category ->
+                        navController.navigate("service_list/$category")
+                    },
+                    onManageAddressesClicked = {
+                        navController.navigate("manage_addresses")
+                    },
+                    onLogoutClicked = {
+                        scope.launch {
+                            userPreferences.clearSession()
+                            com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+                        }
+                        navController.navigate("login") {
+                            popUpTo(0)
+                        }
+                    }
+                )
+            }
+            
+            // 8b. Service List
+            composable("service_list/{category}") { backStackEntry ->
+                val category = backStackEntry.arguments?.getString("category") ?: ""
+                com.example.myapplication.ui.screens.home.ServiceListScreen(
+                    category = category,
+                    onBackClicked = { navController.popBackStack() },
+                    onBookClicked = { service ->
+                        // Navigate to booking screen (coming soon)
+                    }
+                )
             }
             
             // 9. Manage Addresses
@@ -193,4 +226,3 @@ fun AppNavigation(userPreferences: UserPreferences) {
             }
         }
     }
-}

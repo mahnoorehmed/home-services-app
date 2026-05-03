@@ -26,6 +26,7 @@ import com.example.myapplication.viewmodel.AuthState
 fun OtpScreen(
     modifier: Modifier = Modifier,
     phoneNumber: String,
+    selectedRole: String,
     authViewModel: AuthViewModel,
     onBackClicked: () -> Unit,
     onVerifyClicked: (String) -> Unit,
